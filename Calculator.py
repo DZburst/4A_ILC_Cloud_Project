@@ -9,29 +9,38 @@ import csv
 
 app = Flask(__name__)
 
-# Code from the previous project : 
+class Calcul:
+    id = -1
+    operand1 = 1
+    operator = ""
+    operand2 = 1
 
-"""
+    def __init__(self, id, operand1, operator, operand2):
+        Calcul.id += 1
+        self.operand1 = operand1
+        self.operator = operator
+        self.operand2 = operand2
+    
+    def calculate(self):
+        if self.operator == "+":
+            return self.operand1 + self.operand2
+        elif self.operator == "-":
+            return self.operand1 - self.operand2
+        elif self.operator == "*":
+            return self.operand1 * self.operand2
+        elif self.operator == "%2F":
+            if self.operand2 != 0:
+                return self.operand1 / self.operand2
+            else:
+                return "Error : Division by 0 impossible..."
+        else:
+            return "Error : Invalid operator"
 
-## Class representing the Events in the calendar.
+test_calcul = Calcul(Calcul.id, 1, "+", 1)
 
-class Event:
-    name = None
-    timestamp = None
-    duration = None
-    participants = None
-
-    def __init__(self, name, timestamp, duration, participants):
-        self.name = name
-        self.timestamp = timestamp
-        self.duration = duration
-        self.participants = participants
-
-test_event = Event("Holidays", "12/23/2023", 1382400, ["Everyone"])
-
-calendars = {}
-cal = {test_event.name : (test_event.timestamp, test_event.duration, test_event.participants)}
-calendars["Default Calendar"] = cal
+operations = {}
+result = test_calcul.operand1
+operations[str(test_calcul.id)] = (test_calcul.operand1, test_calcul.operator, test_calcul.operand2, test_calcul.calculate())
 
 def value(x):
     return unquote(unquote(x))
@@ -41,38 +50,31 @@ def main_menu():
     current_url = request.headers.get('X-Forwarded-Proto', 'http') + '://' + request.headers.get('X-Forwarded-Host', 'localhost')
     if current_url.endswith('/'):
         current_url = current_url[:-1]
-    text = "<h2 style = 'text-align : center;'>This is the main page of our project, at the root of the other endpoints. Please choose amongst the following endpoints. </h2><p style = 'text-align : center;'>(Beware when changing the values of T1 and n in the url, keep %25252F for '/' and %252520 for ' ', only change the values)</p> <br>"
+    text = "<h2 style = 'text-align : center;'>To use the calculator, please type in the first operand, then the operator (\"+\", \"-\", \"*\", or \"%2F\" for division), then the second operand.</h2><br>"
     
-    # Since the application to implement shouldn't have too many endpoints, we can add manually 
-    # the default values for endpoints which require parameters.
-    # Otherwise, we should create a list and get all the endpoints, access their properties with their rules,
-    # and then do the necessary operations.
-
-    #E1
-    text += "<p><a href='{}{}'>/{}</a></p><br>".format(current_url, url_for('calendar', cal_name = quote('Default%20Calendar')), 'calendar')
-    text += "<p><a href='{}{}'>/{}</a></p><br>".format(current_url, url_for('add_event', n = quote('Day%201'), T1 = quote('01%2F01%2F1970'), t = 86400, p = 'Everyone', cal_name = quote('Default%20Calendar')), 'add_event')
-    text += "<p><a href='{}{}'>/{}</a></p><br>".format(current_url, url_for('remove_event', n = quote('Day%201'), cal_name = quote('Default%20Calendar')), 'remove_event')
-
-    #E2
-    text += "<p><a href='{}{}'>/{}</a></p><br>".format(current_url, url_for('sorted_events', cal_name = quote('Default%20Calendar')), 'sorted_events')
-    
-    #E3
-    text += "<p><a href='{}{}'>/{}</a></p><br>".format(current_url, url_for('sorted_events_by_person', p = 'Everyone', cal_name = quote('Default%20Calendar')), 'sorted_events_by_person')
-
-    #E4
-    text += "<p><a href='{}{}'>/{}</a></p><br>".format(current_url, url_for('add_participant',n = quote('Day%201'), p = 'Someone', cal_name = quote('Default%20Calendar')), 'add_participant')
-
-    #E5
-    text += "<p><a href='{}{}'>/{}</a></p><br>".format(current_url, url_for('next_event', cal_name = quote('Default%20Calendar')), 'next_event')
-
-    #E6
-    text += "<p><a href='{}{}'>/{}</a></p><br>".format(current_url, url_for('export_csv', path = quote('Ressources%2FCI_CD_Project.csv'), cal_name = quote('Default%20CSV%20Calendar')), 'export_csv')
-
     return text
 
-@app.route('/viewCalendar/<cal_name>', methods = ["GET"])
-def calendar(cal_name):
-    return jsonify(calendars[value(cal_name)])
+@app.route('/viewCalculs', methods = ["GET"])
+def viewCalculs():
+    return jsonify(operations)
+
+
+@app.route('/calculate/<operand1>/<operator>/<operand2>', methods = ["GET", "POST"])
+def calculate(operand1, operator, operand2):
+    new_calcul = Calcul(Calcul.id, int(operand1), value(operator), int(operand2))
+    operations[str(new_calcul.id)] = (int(new_calcul.operand1), value(new_calcul.operator), int(new_calcul.operand2), new_calcul.calculate())
+    return str(new_calcul.id)
+
+
+@app.route('/viewCalculWithId/<id>', methods = ["GET"])
+def viewCalculWithId(id):
+    return jsonify(operations[str(id)])
+
+
+
+# Code from the previous project : 
+
+"""
 
 @app.route('/addEvent/<n>/<T1>/<t>/<p>/<cal_name>', methods = ["GET", "POST"])
 def add_event(n, T1, t, p, cal_name):
@@ -140,6 +142,7 @@ def export_csv(path, cal_name):
     
     return jsonify(calendars[value(cal_name)])
 
+"""
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
@@ -151,5 +154,3 @@ if __name__ == "__main__":
             exit(1)
 
     app.run(debug = True)
-
-"""
