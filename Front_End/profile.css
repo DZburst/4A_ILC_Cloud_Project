@@ -1,0 +1,34 @@
+*
+{
+    margin: 0;
+    padding: 0;
+}
+
+body
+{
+    width: 100vw;
+    height: 100vh;
+}
+
+header
+{
+    width: 50vw;
+    height: 20vh;
+    background-image: url('Ressources/banner1.png');
+    background-size: cover;
+    background-position: center;
+}
+
+main
+{
+    background-color: #DDD;
+    width: 50vw;
+    height: 80vh;
+    align-content: center;
+    align-items: center;
+}
+
+tweet
+{
+
+}
