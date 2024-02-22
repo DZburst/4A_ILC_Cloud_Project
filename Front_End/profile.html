@@ -7,62 +7,68 @@
     <link rel="stylesheet" href="profile.css">
 </head>
 <body>
-    <header>
-        <img>
-        <div>
-            <p> </p>
-            <p> </p>
-            <time> </time>
+    <div class="left-banner">
+        <div class="logo">
+        <img src="Ressources/Tweetyr_logo.jpg" alt="Tweetyr Logo">
+            <h3>TweetyR</h3>
         </div>
-    </header>
-    <main>
-        <h1>My tweets</h1>
-        <tweet>
-            <h3>Tweet's title</h3>
-            <p> </p>
-            <time> </time>
-        </tweet>
-        <tweet>
-            <h3>Tweet's title</h3>
-            <p> </p>
-            <time> </time>
-        </tweet>
-    </main>
-    <details>
-        <home>
+        <button class="top-btn">
             &#127968 Home
-        </home>
-        <settings>
+        </button>
+        <button>
             &#128295 Settings
-        </settings>
-        <about>
+        </button>
+        <button>
             &#128172 About
-        </about>
-    </details>
-    <aside>
-        <div>
-            <h1>Followers</h1>
-            <account>
-                <img>
-                <p> </p>
-            </account>
-            <account>
-                <img>
-                <p> </p>
-            </account>
+        </button>
+    </div>
+    <main>
+        <header>
+            <img src="Ressources/user1.jpg" alt="Profile Picture">
+            <div class="header-content">
+                <h1>John Doe</h1>
+                <p>@johndoe</p>
+                <p>Hello World !</p>
+                <time>Joined: February 2024</time>
+            </div>
+        </header>
+        <h1>My Tweets</h1>
+        <div class="tweet">
+            <h3>Tweet's title</h3>
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec euismod efficitur orci at tincidunt.</p>
+            <time>February 22, 2024</time>
         </div>
-        <div>
-            <h1>Following</h1>
-            <account>
-                <img>
-                <p> </p>
-            </account>
-            <account>
-                <img>
-                <p> </p>
-            </account>
+        <div class="tweet">
+            <h3>Another Tweet</h3>
+            <p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium.</p>
+            <time>February 21, 2024</time>
         </div>
-    </aside>
+    </main>
+    <div class="right-banner">
+        <div class="followers">
+            <h2>Followers</h2>
+            <div class="account">
+                <img src="Ressources/user1.jpg" alt="Follower Image">
+                <p>User1</p>
+            </div>
+            <div class="account">
+                <img src="Ressources/user1.jpg" alt="Follower Image">
+                <p>User2</p>
+            </div>
+        </div>
+        <div class="separator"></div>
+        <div class="following">
+            <h2>Following</h2>
+            <div class="account">
+                <img src="Ressources/user1.jpg" alt="Following Image">
+                <p>User3</p>
+            </div>
+            <div class="account">
+                <img src="Ressources/user1.jpg" alt="Following Image">
+                <p>User4</p>
+            </div>
+        </div>
+    </div>
 
     <script src="profile.js"></script>
 </body>
