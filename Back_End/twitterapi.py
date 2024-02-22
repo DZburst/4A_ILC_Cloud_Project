@@ -83,5 +83,22 @@ def tweet():
         return jsonify({'message': 'User not found'}), 404
 
 
+@app.route('/tweets4topic', methods=['GET'])
+def tweet4topic():
+    topic_query = request.args.get('topic')
+
+    # Get all tweet IDs from Redis
+    tweet_ids = redis_client.lrange('tweets', 0, -1)
+
+    # Filter tweets by the topic
+    tweets_for_topic = []
+    for tweet_id in tweet_ids:
+        tweet = redis_client.hgetall(tweet_id)
+        if tweet.get('topic') == topic_query:
+            tweets_for_topic.append(tweet)
+
+    return jsonify(tweets_for_topic)
+
+
 if __name__ == '__main__':
     app.run(debug=True)
