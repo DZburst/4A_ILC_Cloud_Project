@@ -1,11 +1,17 @@
 import hashlib
 from flask import Flask, jsonify, request
 import time
+import redis
+
+# Connect to Redis
+redis_client = redis.Redis(host='localhost', port=6379,
+                           db=0, decode_responses=True)
 
 app = Flask(__name__)
 users = {
     'user1': {
         'username': 'test_user',
+        # hashing passwords for security
         'password': hashlib.sha256('hashed_password'.encode()).hexdigest(),
         'tweets': ['tweet_id1', 'tweet_id2']
     }
@@ -65,6 +71,9 @@ def tweet():
             'date': time.strftime('%Y-%m-%d'),
             'time': time.strftime('%H:%M:%S')
         }
+
+        redis_client.hmset(tweet_id, tweet)
+        redis_client.lpush('tweets', tweet_id)
 
         # Add tweet ID to user's list of tweets to facilitate acces to users' tweets
         users[username]['tweets'].append(tweet_id)
