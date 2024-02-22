@@ -30,9 +30,13 @@ tweets = {
 # route for displaying the tweets
 
 
-@app.route('/')
-def display_tweets():
-    return "hello world"
+@app.route('/alltweets', methods=['GET'])
+def all_tweets():
+    tweet_ids = redis_client.lrange('tweets', 0, -1)
+
+    all_tweets = [redis_client.hgetall(tweet_id) for tweet_id in tweet_ids]
+
+    return jsonify(all_tweets)
 
 
 @app.route('/login', methods=['POST'])
