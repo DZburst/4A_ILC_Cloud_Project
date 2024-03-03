@@ -1,6 +1,7 @@
 import hashlib
 from flask import Flask, jsonify, request
 import time
+from flask_cors import CORS
 import redis
 
 # Connect to Redis
@@ -8,11 +9,12 @@ redis_client = redis.Redis(host='localhost', port=6379,
                            db=0, decode_responses=True)
 
 app = Flask(__name__)
+CORS(app)
+
 users = {
-    'user1': {
-        'username': 'test_user',
-        # hashing passwords for security
-        'password': hashlib.sha256('hashed_password'.encode()).hexdigest(),
+    'Asmae': {
+        'password': hashlib.sha256('pswd'.encode()).hexdigest(),
+        'user_id': 123,
         'tweets': ['tweet_id1', 'tweet_id2']
     }
 }
@@ -27,8 +29,25 @@ tweets = {
     }
 }
 
+<<<<<<< HEAD
+
+def add_sample_tweets():
+    sample_tweets = {
+        'tweet_id4': {'content': 'Sample tweet 1', 'user': 'user4', 'topic': 'sample', 'date': '2024-01-01', 'time': '12:00'},
+        'tweet_id5': {'content': 'Sample tweet 2', 'user': 'user5', 'topic': 'sample', 'date': '2024-01-02', 'time': '13:00'}
+    }
+
+    for tweet_id, tweet_data in sample_tweets.items():
+        redis_client.hmset(tweet_id, tweet_data)
+        redis_client.lpush('tweets', tweet_id)
+
+
+if redis_client.llen('tweets') == 0:
+    add_sample_tweets()
+=======
 # redis_client.hmset('users', users)
 # redis_client.hmset('tweets', tweets)
+>>>>>>> 3a2cd1fff195d836246f66dba43324657668d3ad
 
 
 # route for displaying the tweets
@@ -48,12 +67,12 @@ def login():
     username = data.get('username')
     password = data.get('password')
 
-    # Hash the provided password to compare with stored hash
     hashed_password = hashlib.sha256(password.encode()).hexdigest()
 
     user = users.get(username)
     if user and user['password'] == hashed_password:
-        return jsonify({'message': 'Login successful'}), 200
+        user_id = user.get('user_id')
+        return jsonify({'message': 'Login successful', 'userID': user_id}), 200
     else:
         return jsonify({'message': 'Invalid username or password'}), 401
 
