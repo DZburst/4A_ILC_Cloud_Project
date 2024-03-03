@@ -1,4 +1,4 @@
-# **Cloud Computing Project**
+# **CLOUD COMPUTING PROJECT - General Overview**
 
 *Realized by : HADJI Rayan, LATIFI Asmae - TP1 ILC 4A*
 

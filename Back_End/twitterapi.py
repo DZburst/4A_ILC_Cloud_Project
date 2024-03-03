@@ -30,8 +30,8 @@ tweets = {
 # redis_client.hmset('users', users)
 # redis_client.hmset('tweets', tweets)
 
-# route for displaying the tweets
 
+# route for displaying the tweets
 
 @app.route('/alltweets', methods=['GET'])
 def all_tweets():

@@ -1,18 +1,22 @@
-* {
-    margin: 0;
-    padding: 0;
+* 
+{
+    margin: 0px;
+    padding: 0px;
     box-sizing: border-box;
 }
 
-body {
+body 
+{
     display: flex;
     height: 100vh;
     width: 100vw;
+    background-color: #fae19d;
 }
 
-.left-banner {
+.left-banner 
+{
     width: 12vw;
-    background-color: #ddd;
+    background-color: #fcd878;
     padding: 10px;
     display: flex;
     flex-direction: column;
@@ -47,6 +51,8 @@ body {
     display: flex;
     align-items: center;
     margin-bottom: 20px;
+    font-size: 20px;
+    color: #e69b00
 }
 
 .logo img
@@ -54,13 +60,6 @@ body {
     width: 50px;
     height: 50px;
     margin-right: 10px;
-}
-
-.logo h3
-{
-    font-size: 20px;
-    margin: 0;
-    color: #e69b00
 }
 
 main 
@@ -96,17 +95,17 @@ header img
 
 .tweet 
 {
-    background-color: #ccc;
+    background-color: #fcd878;
     padding: 10px;
-    margin-bottom: 20px;
+    margin: 20px;
     border: 1px solid #333;
     border-radius: 5px;
 }
 
 .right-banner 
 {
-    width: 30vw;
-    background-color: #ddd;
+    width: 20vw;
+    background-color: #fcd878;
     padding: 20px;
     display: flex;
     flex-direction: row;
@@ -136,8 +135,9 @@ header img
 
 .account img 
 {
-    width: 50px;
-    height: 50px;
+    width: 30px;
+    height: 30px;
     border-radius: 50%;
-    margin-right: 10px;
+    margin-top: 5px;
+    margin-right: 5px;
 }
