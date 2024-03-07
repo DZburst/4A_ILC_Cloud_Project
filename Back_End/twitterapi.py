@@ -119,7 +119,7 @@ def tweet():
 
 @app.route('/tweets4topic', methods=['GET'])
 def tweet4topic():
-    topic_query = request.args.get('topic')
+    topic_query = str(request.args.get('topic'))
 
     # Get all tweet IDs from Redis
     tweet_ids = redis_client.lrange('tweets', 0, -1)
@@ -130,11 +130,13 @@ def tweet4topic():
         tweet = redis_client.hgetall(tweet_id)
         if tweet.get('topic') == topic_query:
             tweets_for_topic.append(tweet)
+    if len(tweets_for_topic) == 0:
+        error_msg = "No such topic yet..."
 
     return jsonify(tweets_for_topic)
 
 
-@app.route('/userTweets', methods=['GET'])
+@app.route('/tweets4user', methods=['GET'])
 def userTweets():
     user = request.args.get('user')
 
@@ -147,6 +149,8 @@ def userTweets():
         tweet = redis_client.hgetall(tweet_id)
         if tweet.get('user') == user:
             user_tweets.append(tweet)
+    if len(user_tweets) == 0:
+        error_msg = "This user hasn't tweetyd yet or doesn't exist..."
 
     return jsonify(user_tweets)
 
@@ -155,8 +159,7 @@ def userTweets():
 def retweet():
     data = request.json
     username = data.get('username')
-    content = data.get('content') + '\n\n' + \
-        redis_client.hget(data.get('tweet_id'))
+    content = data.get('content') + '\n\n' + redis_client.hget(data.get('tweet_id'))
     topic = data.get('topic')
 
     # Check if user exists
