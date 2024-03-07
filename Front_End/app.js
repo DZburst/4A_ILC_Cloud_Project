@@ -14,7 +14,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Login event listener
     loginButton.addEventListener('click', function() {
-        e.preventDefault();
         const username = document.getElementById('username').value;
         const password = document.getElementById('password').value;
         fetch('http://localhost:5000/login', {
@@ -42,27 +41,40 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Post tweet event listener
     tweetButton.addEventListener('click', function() {
-        const content = tweetContent.value;
-        const topic = tweetTopic.value;
-        const loggedInUser = localStorage.getItem('username');
-        fetch('http://localhost:5000/tweet', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ username: loggedInUser, content, topic }) // Use the logged-in username
+    const content = tweetContent.value;
+    const topic = tweetTopic.value;
+    const loggedInUser = localStorage.getItem('username');
+    
+    const currentDate = new Date();
+    const formattedDate = currentDate.toISOString(); 
+
+    fetch('http://localhost:5000/tweet', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        mode: 'cors',  
+        credentials: 'include',  // Include credentials in the request
+        body: JSON.stringify({ user: loggedInUser, content, topic, date: formattedDate })
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
         })
-        .then(response => response.json())
         .then(data => {
             tweetContent.value = ''; // Clear the textarea after posting
             tweetTopic.value = '';   // Clear the topic input after posting
             alert(data.message);
-            displayTweets(); 
+            //displayTweets(); 
         })
         .catch((error) => {
-            console.error('Error:', error);
+            console.error('Error:', error); // Log the error details
+            alert('An error occurred. Please check the console for details.');
         });
     });
+    
 
     // Function to fetch and display all tweets
     function displayTweets() {
