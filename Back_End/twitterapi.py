@@ -9,6 +9,8 @@ import time
 # Connect to Redis
 redis_client = redis.Redis(host='localhost', port=6379,
                            db=0, decode_responses=True)
+#docker run --name myredis --rm -p 6379:6379 redis
+
 
 app = Flask(__name__)
 CORS(app, supports_credentials=True)
@@ -35,8 +37,10 @@ tweets = {
 
 def add_sample_tweets():
     sample_tweets = {
-        'tweet_id4': {'content': 'Sample tweet 1', 'user': 'user4', 'topic': 'sample', 'date': '2024-01-01', 'time': '12:00'},
-        'tweet_id5': {'content': 'Sample tweet 2', 'user': 'user5', 'topic': 'sample', 'date': '2024-01-02', 'time': '13:00'}
+        'tweet_id1': {'content': 'Sample tweet 1', 'user': 'Asmae', 'topic': 'sample', 'date': '2024-01-01', 'time': '12:00'},
+        'tweet_id2': {'content': 'Sample tweet 2', 'user': 'Asmae', 'topic': 'sample', 'date': '2024-01-02', 'time': '15:00'},
+        'tweet_id3': {'content': 'Sample tweet 3', 'user': 'Rayan', 'topic': 'sample', 'date': '2024-01-01', 'time': '13:00'},
+        'tweet_id4': {'content': 'Sample tweet 4', 'user': 'Rayan', 'topic': 'sample', 'date': '2024-01-02', 'time': '14:00'}
     }
 
     for tweet_id, tweet_data in sample_tweets.items():
@@ -44,8 +48,23 @@ def add_sample_tweets():
         redis_client.lpush('tweets', tweet_id)
 
 
+def add_sample_users():
+    sample_users = {
+        'Asmae': {'password': hashlib.sha256('pswd'.encode()).hexdigest(),'user_id': 123,'tweets': ['tweet_id1', 'tweet_id2']},
+        'Rayan': {'password': hashlib.sha256('1234'.encode()).hexdigest(),'user_id': 213,'tweets': ['tweet_id3', 'tweet_id4']}
+    }
+
+    for username, user_data in sample_users.items():
+        user_data['tweets'] = ', '.join(user_data['tweets'])    # Redis doesn't accept lists -> conversion to string
+        redis_client.hmset(username, user_data)
+        redis_client.lpush('users', username)
+
+
 if redis_client.llen('tweets') == 0:
     add_sample_tweets()
+
+if redis_client.llen('users') == 0:
+    add_sample_users()
 
 
 # route for displaying the tweets
