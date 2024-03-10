@@ -13,8 +13,7 @@ redis_client = redis.Redis(host='localhost', port=6379,
 
 
 app = Flask(__name__)
-CORS(app, supports_credentials=True)
-CORS(app, supports_credentials=True, origins=['http://localhost:5500'])
+CORS(app, supports_credentials=True, origins='*')
 
 users = {
     'Asmae': {
@@ -121,7 +120,7 @@ def tweet():
         }
 
         # Update these lines based on your actual Redis usage
-        redis_client.hmset(tweet_id, tweets[tweet_id])
+        redis_client.hset(tweet_id, mapping=tweets[tweet_id])
         redis_client.lpush('tweets', tweet_id)
 
         # Add tweet ID to the user's list of tweets to facilitate access to users' tweets
@@ -133,7 +132,7 @@ def tweet():
         response.headers.add('Access-Control-Allow-Credentials', 'true')
         return response, 201
     else:
-        return jsonify({'message': 'User not found'}), 404
+        return jsonify({'message': 'User not found'}), 400
 
 
 @app.route('/tweets4topic', methods=['GET'])
@@ -178,7 +177,8 @@ def userTweets():
 def retweet():
     data = request.json
     username = data.get('username')
-    content = data.get('content') + '\n\n' + redis_client.hget(data.get('tweet_id'))
+    content = data.get('content') + '\n\n' + \
+        redis_client.hget(data.get('tweet_id'))
     topic = data.get('topic')
 
     # Check if user exists
@@ -195,7 +195,7 @@ def retweet():
             'time': time.strftime('%H:%M:%S')
         }
 
-        redis_client.hmset(tweet_id, tweet)
+        redis_client.hset(tweet_id, mapping=tweet)
         redis_client.lpush('tweets', tweet_id)
 
         # Add tweet ID to user's list of tweets to facilitate acces to users' tweets

@@ -41,22 +41,22 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Post tweet event listener
     tweetButton.addEventListener('click', function() {
-    const content = tweetContent.value;
-    const topic = tweetTopic.value;
-    const loggedInUser = localStorage.getItem('username');
-    
-    const currentDate = new Date();
-    const formattedDate = currentDate.toISOString(); 
+        const content = tweetContent.value;
+        const topic = tweetTopic.value;
+        const loggedInUser = localStorage.getItem('username');
+        
+        const currentDate = new Date();
+        const formattedDate = currentDate.toISOString(); 
 
-    fetch('http://localhost:5000/tweet', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        mode: 'cors',  
-        credentials: 'include',  // Include credentials in the request
-        body: JSON.stringify({ user: loggedInUser, content, topic, date: formattedDate })
-    })
+        fetch('http://localhost:5000/tweet', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            mode: 'cors',  
+            credentials: 'include',  // Include credentials in the request
+            body: JSON.stringify({ user: loggedInUser, content, topic, date: formattedDate })
+        })
         .then(response => {
             if (!response.ok) {
                 throw new Error('Network response was not ok');
@@ -67,11 +67,11 @@ document.addEventListener('DOMContentLoaded', function() {
             tweetContent.value = ''; // Clear the textarea after posting
             tweetTopic.value = '';   // Clear the topic input after posting
             alert(data.message);
-            //displayTweets(); 
+            location.reload(); 
         })
         .catch((error) => {
             console.error('Error:', error); // Log the error details
-            alert('An error occurred. Please check the console for details.');
+            location.reload(); 
         });
     });
     
