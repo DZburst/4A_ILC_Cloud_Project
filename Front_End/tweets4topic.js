@@ -56,7 +56,12 @@ function fetchTweetsFromRedis()
     mode: 'no-cors'
   })
   */
-  fetch(`${domain}/tweets4topic?topic=${value4url}`)
+  fetch(`${domain}/tweets4topic?topic=${value4url}`,
+  {
+    method: 'GET',
+    'Access-Control-Allow-Origin': '*',
+    'Content-Type': 'application/json',
+  })
     .then(response => response.json())
     .then(tweets => 
     {
