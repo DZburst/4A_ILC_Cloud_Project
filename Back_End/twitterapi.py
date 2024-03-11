@@ -10,7 +10,7 @@ import time
 # redis_host = "host.docker.internal"  # This is for Docker for Windows/Mac
 # redis_port = 6379
 # redis_client = redis.StrictRedis(host=redis_host, port=redis_port, db=0, decode_responses=True)
-redis_client = redis.Redis(host='localhost', port=6379,
+redis_client = redis.Redis(host='172.17.0.2', port=6379,
                            db=0, decode_responses=True)
 #docker run --name myredis --rm -p 6379:6379 redis
 
@@ -88,7 +88,7 @@ def login():
 
     hashed_password = hashlib.sha256(password.encode()).hexdigest()
 
-    user = users.get(username)
+    user = redis_client.hgetall(username)
     if user and user['password'] == hashed_password:
         user_id = user.get('user_id')
         return jsonify({'message': 'Login successful', 'userID': user_id}), 200

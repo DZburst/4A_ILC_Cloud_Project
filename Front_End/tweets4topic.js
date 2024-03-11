@@ -43,9 +43,9 @@ function fetchTweetsFromRedis()
   let domain = window.location.origin
   const topic_filter = getQuery("topic")
   const value4url = encodeURIComponent(topic_filter)
-  if (domain.includes("5500")) 
+  if (domain.includes("5501")) 
   {
-    domain = domain.replace("5500", "5000");
+    domain = domain.replace("5501", "5000");
   }
   console.log(`${domain}/tweets4topic?topic=${value4url}`)
   /*
@@ -56,11 +56,13 @@ function fetchTweetsFromRedis()
     mode: 'no-cors'
   })
   */
-  fetch(`${domain}/tweets4topic?topic=${value4url}`,
+  fetch(`https://zany-fishstick-jjjjg7964rpcp557-5000.app.github.dev/tweets4topic?topic=${value4url}`,
   {
     method: 'GET',
-    'Access-Control-Allow-Origin': '*',
-    'Content-Type': 'application/json',
+    mode: 'cors',
+    headers : {
+      'Content-Type': 'application/json'
+    }
   })
     .then(response => response.json())
     .then(tweets => 
