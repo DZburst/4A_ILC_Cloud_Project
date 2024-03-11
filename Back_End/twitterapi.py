@@ -177,8 +177,7 @@ def userTweets():
 def retweet():
     data = request.json
     username = data.get('username')
-    content = data.get('content') + '\n\n' + \
-        redis_client.hget(data.get('tweet_id'))
+    content = data.get('content') + '\n\n' + redis_client.hget(data.get('tweet_id'))
     topic = data.get('topic')
 
     # Check if user exists

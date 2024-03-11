@@ -48,6 +48,14 @@ function fetchTweetsFromRedis()
     domain = domain.replace("5500", "5000");
   }
   console.log(`${domain}/tweets4topic?topic=${value4url}`)
+  /*
+  Tried forcing the webpage not to use CORS, but still not working...
+  fetch(`${domain}/tweets4topic?topic=${value4url}`, 
+  {
+    method: 'GET',
+    mode: 'no-cors'
+  })
+  */
   fetch(`${domain}/tweets4topic?topic=${value4url}`)
     .then(response => response.json())
     .then(tweets => 
@@ -73,4 +81,24 @@ function fetchTweetsFromRedis()
     })
 }
 
-fetchTweetsFromRedis();
+document.addEventListener("DOMContentLoaded", function() 
+{
+  const domain = window.location.origin
+  const home = document.getElementById("home")
+  const settings = document.getElementById("settings")
+  const about = document.getElementById("about")
+  home.addEventListener("click", function()
+  {
+    window.location.href = `${domain}/Front_End/main_page.html`
+  })
+  settings.addEventListener("click", function()
+  {
+    window.location.href = `${domain}/Front_End/settings.html`
+  })
+  about.addEventListener("click", function()
+  {
+    window.location.href = `${domain}/README.md`
+  })
+
+  fetchTweetsFromRedis();
+})
