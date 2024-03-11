@@ -7,6 +7,9 @@ import redis
 import time
 
 # Connect to Redis
+# redis_host = "host.docker.internal"  # This is for Docker for Windows/Mac
+# redis_port = 6379
+# redis_client = redis.StrictRedis(host=redis_host, port=redis_port, db=0, decode_responses=True)
 redis_client = redis.Redis(host='localhost', port=6379,
                            db=0, decode_responses=True)
 #docker run --name myredis --rm -p 6379:6379 redis
@@ -150,8 +153,9 @@ def tweet4topic():
             tweets_for_topic.append(tweet)
     if len(tweets_for_topic) == 0:
         error_msg = "No such topic yet..."
-
-    return jsonify(tweets_for_topic)
+        return jsonify(error_msg)
+    else:
+        return jsonify(tweets_for_topic)
 
 
 @app.route('/tweets4user', methods=['GET'])
@@ -169,8 +173,10 @@ def userTweets():
             user_tweets.append(tweet)
     if len(user_tweets) == 0:
         error_msg = "This user hasn't tweetyd yet or doesn't exist..."
+        return jsonify(error_msg)
+    else:
+        return jsonify(user_tweets)
 
-    return jsonify(user_tweets)
 
 
 @app.route('/retweet', methods=['POST'])
@@ -182,27 +188,44 @@ def retweet():
 
     # Check if user exists
     if username in users:
-        # Create a unique tweet ID based on current timestamp
+        data = request.json
+    print(f"Received data: {data}")
+    username = data.get('user')
+    content = data.get('content')
+    topic = data.get('topic')
+    date_str = data.get('date')
+
+    # Check if user exists
+    if username in users:
+        # Create a unique tweet ID based on the current timestamp
         tweet_id = 'tweet_id' + str(int(time.time()))
+
+        # Parse date string to a datetime object
+        tweet_date = datetime.strptime(date_str, "%Y-%m-%dT%H:%M:%S.%fZ")
 
         # Create the tweet
         tweets[tweet_id] = {
             'content': content,
             'user': username,
             'topic': topic,
-            'date': time.strftime('%Y-%m-%d'),
-            'time': time.strftime('%H:%M:%S')
+            'date': tweet_date.strftime('%Y-%m-%d'),
+            'time': tweet_date.strftime('%H:%M:%S')
         }
 
-        redis_client.hset(tweet_id, mapping=tweet)
+        # Update these lines based on your actual Redis usage
+        redis_client.hset(tweet_id, mapping=tweets[tweet_id])
         redis_client.lpush('tweets', tweet_id)
 
-        # Add tweet ID to user's list of tweets to facilitate acces to users' tweets
+        # Add tweet ID to the user's list of tweets to facilitate access to users' tweets
         users[username]['tweets'].append(tweet_id)
 
-        return jsonify({'message': 'Tweet posted', 'tweet_id': tweet_id}), 201
+        response = jsonify({'message': 'Tweet posted'})
+        response.headers.add('Access-Control-Allow-Origin',
+                             'http://localhost:5500')
+        response.headers.add('Access-Control-Allow-Credentials', 'true')
+        return response, 201
     else:
-        return jsonify({'message': 'User not found'}), 404
+        return jsonify({'message': 'User not found'}), 400
 
 
 if __name__ == '__main__':
