@@ -11,34 +11,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const tweetContent = document.getElementById('tweetContent');
     const tweetTopic = document.getElementById('tweetTopic');
     
-
-    // Login event listener
-    loginButton.addEventListener('click', function() {
-        const username = document.getElementById('username').value;
-        const password = document.getElementById('password').value;
-        fetch('http://localhost:5000/login', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ username, password }),
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Login failed');
-            }
-            return response.json();
-        })
-        .then(data => {
-            alert(data.message);
-        })
-        .catch((error) => {
-            alert(error.message);
-        });
-        isLoggedIn = true;
-        loginModal.style.display = 'none'; 
-    });
-
     // Post tweet event listener
     tweetButton.addEventListener('click', function() {
         const content = tweetContent.value;
@@ -74,29 +46,60 @@ document.addEventListener('DOMContentLoaded', function() {
             location.reload(); 
         });
     });
-    
 
-    // Function to fetch and display all tweets
     function displayTweets() {
         fetch('http://localhost:5000/alltweets')
         .then(response => response.json())
         .then(tweets => {
-            tweetsContainer.innerHTML = tweets.map(tweet => `
-                <div class="max-w-md mx-auto bg-white rounded-lg overflow-hidden md:max-w-lg my-2">
-                    <div class="md:flex">
-                        <div class="w-full p-4">
-                            <p>${tweet.content}</p>
-                            <div class="text-sm text-gray-600">${tweet.user} - ${tweet.topic}</div>
-                            <div class="text-sm text-gray-500">${tweet.date} ${tweet.time}</div>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
+            const tweetsContainer = document.getElementById('tweetsContainer');
+            const tweetTemplate = document.getElementById('tweetTemplate');
+    
+            tweets.forEach(tweetData => {
+                const tweetElement = tweetTemplate.content.cloneNode(true);
+    
+                tweetElement.querySelector('.text-lg').textContent = tweetData.content;
+                tweetElement.querySelector('.text-sm.text-gray-600').textContent = `${tweetData.user} - ${tweetData.topic}`;
+                tweetElement.querySelector('.text-sm.text-gray-500').textContent = `${tweetData.date} ${tweetData.time}`;
+    
+                tweetElement.querySelector('button').addEventListener('click', () => retweet(tweetData.id));
+    
+                tweetsContainer.appendChild(tweetElement);
+            });
         })
         .catch((error) => {
             console.error('Error:', error);
+            tweetsContainer.innerHTML = '<p class="text-red-500">Failed to load tweets. Please try again later.</p>';
         });
     }
+    
 
     displayTweets();
+
+    function retweet(tweetId) {
+        const loggedInUser = localStorage.getItem('username');
+        const retweetData = {
+            tweet_id: tweetId,
+            username: loggedInUser
+        };
+    
+        fetch('http://localhost:5000/retweet', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            mode: 'cors',
+            credentials: 'include', 
+            body: JSON.stringify(retweetData)
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Retweet failed');
+            }
+            console.log('Retweet successful');
+            location.reload(); 
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    } 
 });

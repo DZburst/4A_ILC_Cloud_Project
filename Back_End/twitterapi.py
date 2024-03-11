@@ -11,15 +11,9 @@ redis_client = redis.Redis(host='localhost', port=6379,
                            db=0, decode_responses=True)
 
 app = Flask(__name__)
-CORS(app, supports_credentials=True, origins='*')
-
-users = {
-    'Asmae': {
-        'password': hashlib.sha256('pswd'.encode()).hexdigest(),
-        'user_id': 123,
-        'tweets': ['tweet_id1', 'tweet_id2']
-    }
-}
+CORS(app)
+CORS(app, supports_credentials=True)
+CORS(app, origins='http://localhost:5000')
 
 tweets = {
     'tweet_id1': {
@@ -30,6 +24,21 @@ tweets = {
         'time': '10:00'
     }
 }
+
+# Sample code to add a user to Redis
+
+
+def add_user(username, password, user_id):
+    hashed_password = hashlib.sha256(password.encode()).hexdigest()
+    redis_client.hmset(f"user:{username}", {
+        'password': hashed_password,
+        'user_id': user_id,
+        'tweets': ''  # Empty list to start with
+    })
+
+
+# You can call this function to add users, for example:
+add_user('Asmae', 'pswd', 123)
 
 
 def add_sample_tweets():
@@ -47,13 +56,38 @@ if redis_client.llen('tweets') == 0:
     add_sample_tweets()
 
 
-# route for displaying the tweets
+@app.route('/signup', methods=['POST'])
+def sign_up():
+    data = request.json
+    username = data.get('username')
+    password = data.get('password')
 
+    # Check if user already exists
+    if redis_client.exists(f"user:{username}"):
+        return jsonify({'message': 'User already exists'}), 409
+
+    # Hash the password
+    hashed_password = hashlib.sha256(password.encode()).hexdigest()
+
+    # Add the new user to Redis
+    # Increment user ID counter
+    user_id = int(redis_client.incr('user_id_counter'))
+    redis_client.hmset(f"user:{username}", {
+        'password': hashed_password,
+        'user_id': user_id,
+        'tweets': ''  # Empty list to start with
+    })
+
+    return jsonify({'message': 'User registered successfully', 'user_id': user_id}), 201
+
+
+# route for displaying the tweets
 @app.route('/alltweets', methods=['GET'])
 def all_tweets():
     tweet_ids = redis_client.lrange('tweets', 0, -1)
 
-    all_tweets = [redis_client.hgetall(tweet_id) for tweet_id in tweet_ids]
+    all_tweets = [
+        {'id': tweet_id, **redis_client.hgetall(tweet_id)} for tweet_id in tweet_ids]
 
     return jsonify(all_tweets)
 
@@ -65,13 +99,11 @@ def login():
     password = data.get('password')
 
     hashed_password = hashlib.sha256(password.encode()).hexdigest()
-
-    user = users.get(username)
-    if user and user['password'] == hashed_password:
-        user_id = user.get('user_id')
-        return jsonify({'message': 'Login successful', 'userID': user_id}), 200
-    else:
-        return jsonify({'message': 'Invalid username or password'}), 401
+    if redis_client.exists(f"user:{username}"):
+        user = redis_client.hgetall(f"user:{username}")
+        if user['password'] == hashed_password:
+            return jsonify({'message': 'Login successful', 'userID': user['user_id']}), 200
+    return jsonify({'message': 'Invalid username or password'}), 401
 
 
 @app.route('/tweet', methods=['POST'])
@@ -84,7 +116,7 @@ def tweet():
     date_str = data.get('date')
 
     # Check if user exists
-    if username in users:
+    if redis_client.exists(f"user:{username}"):
         # Create a unique tweet ID based on the current timestamp
         tweet_id = 'tweet_id' + str(int(time.time()))
 
@@ -105,7 +137,7 @@ def tweet():
         redis_client.lpush('tweets', tweet_id)
 
         # Add tweet ID to the user's list of tweets to facilitate access to users' tweets
-        users[username]['tweets'].append(tweet_id)
+        redis_client.rpush(f"user:{username}:tweets", tweet_id)
 
         response = jsonify({'message': 'Tweet posted'})
         response.headers.add('Access-Control-Allow-Origin',
@@ -157,35 +189,39 @@ def userTweets():
 @app.route('/retweet', methods=['POST'])
 def retweet():
     data = request.json
+    tweet_id = data.get('tweet_id')
     username = data.get('username')
-    content = data.get('content') + '\n\n' + \
-        redis_client.hget(data.get('tweet_id'))
-    topic = data.get('topic')
+    print(f"Received data: {data}")
 
-    # Check if user exists
-    if username in users:
-        # Create a unique tweet ID based on current timestamp
-        tweet_id = 'tweet_id' + str(int(time.time()))
-
-        # Create the tweet
-        tweets[tweet_id] = {
-            'content': content,
-            'user': username,
-            'topic': topic,
+    if redis_client.exists(tweet_id):
+        original_tweet_content = redis_client.hget(tweet_id, 'content')
+        original_tweet_user = redis_client.hget(tweet_id, 'user')
+        original_tweet_topic = redis_client.hget(tweet_id, 'topic')
+        retweet_id = 'tweet_id' + str(int(time.time()))
+        retweet_content = f" {username} Retweeted: {original_tweet_content}"
+        retweet = {
+            'content': retweet_content,
+            'user': original_tweet_user,
+            'topic': original_tweet_topic,
             'date': time.strftime('%Y-%m-%d'),
             'time': time.strftime('%H:%M:%S')
         }
+        redis_client.hmset(retweet_id, retweet)
+        redis_client.lpush('tweets', retweet_id)
 
-        redis_client.hset(tweet_id, mapping=tweet)
-        redis_client.lpush('tweets', tweet_id)
-
-        # Add tweet ID to user's list of tweets to facilitate acces to users' tweets
-        users[username]['tweets'].append(tweet_id)
-
-        return jsonify({'message': 'Tweet posted', 'tweet_id': tweet_id}), 201
+        return jsonify({'message': 'Retweet successful', 'tweet_id': retweet_id}), 201
     else:
-        return jsonify({'message': 'User not found'}), 404
+        return jsonify({'message': 'Tweet not found'}), 404
 
+
+'''
+# Retrieve all tweet IDs
+tweet_ids = redis_client.lrange('tweets', 0, -1)
+
+# Print the tweet IDs
+for tweet_id in tweet_ids:
+    print(tweet_id)
+'''
 
 if __name__ == '__main__':
     app.run(debug=True)
