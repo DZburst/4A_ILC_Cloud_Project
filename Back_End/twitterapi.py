@@ -7,7 +7,7 @@ import redis
 import time
 
 # redis_host = '172.17.0.2' for CORS normally
-redis_client = redis.Redis(host='localhost', port=6379,
+redis_client = redis.Redis(host='172.17.0.2', port=6379,
                            db=0, decode_responses=True)
 
 # docker run --name myredis --rm -p 6379:6379 redis
@@ -16,7 +16,7 @@ redis_client = redis.Redis(host='localhost', port=6379,
 app = Flask(__name__)
 CORS(app)
 CORS(app, supports_credentials=True)
-CORS(app, origins='http://localhost:5000')
+CORS(app, origins='http://127.0.0.1:5000')
 
 tweets = {
     'tweet_id1': {
@@ -154,6 +154,34 @@ def tweet():
         return jsonify({'message': 'User not found'}), 400
 
 
+@app.route('/retweet', methods=['POST'])
+def retweet():
+    data = request.json
+    tweet_id = data.get('tweet_id')
+    username = data.get('username')
+    print(f"Received data: {data}")
+
+    if redis_client.exists(tweet_id):
+        original_tweet_content = redis_client.hget(tweet_id, 'content')
+        original_tweet_user = redis_client.hget(tweet_id, 'user')
+        original_tweet_topic = redis_client.hget(tweet_id, 'topic')
+        retweet_id = 'tweet_id' + str(int(time.time()))
+        retweet_content = f" {username} Retweeted: {original_tweet_content}"
+        retweet = {
+            'content': retweet_content,
+            'user': original_tweet_user,
+            'topic': original_tweet_topic,
+            'date': time.strftime('%Y-%m-%d'),
+            'time': time.strftime('%H:%M:%S')
+        }
+        redis_client.hmset(retweet_id, retweet)
+        redis_client.lpush('tweets', retweet_id)
+
+        return jsonify({'message': 'Retweet successful', 'tweet_id': retweet_id}), 201
+    else:
+        return jsonify({'message': 'Tweet not found'}), 404
+
+
 @app.route('/tweets4topic', methods=['GET'])
 def tweet4topic():
     topic_query = str(request.args.get('topic'))
@@ -193,44 +221,6 @@ def userTweets():
     else:
         return jsonify(user_tweets)
 
-
-
-@app.route('/retweet', methods=['POST'])
-def retweet():
-    data = request.json
-    tweet_id = data.get('tweet_id')
-    username = data.get('username')
-    print(f"Received data: {data}")
-
-    if redis_client.exists(tweet_id):
-        original_tweet_content = redis_client.hget(tweet_id, 'content')
-        original_tweet_user = redis_client.hget(tweet_id, 'user')
-        original_tweet_topic = redis_client.hget(tweet_id, 'topic')
-        retweet_id = 'tweet_id' + str(int(time.time()))
-        retweet_content = f" {username} Retweeted: {original_tweet_content}"
-        retweet = {
-            'content': retweet_content,
-            'user': original_tweet_user,
-            'topic': original_tweet_topic,
-            'date': time.strftime('%Y-%m-%d'),
-            'time': time.strftime('%H:%M:%S')
-        }
-        redis_client.hmset(retweet_id, retweet)
-        redis_client.lpush('tweets', retweet_id)
-
-        return jsonify({'message': 'Retweet successful', 'tweet_id': retweet_id}), 201
-    else:
-        return jsonify({'message': 'Tweet not found'}), 404
-
-
-'''
-# Retrieve all tweet IDs
-tweet_ids = redis_client.lrange('tweets', 0, -1)
-
-# Print the tweet IDs
-for tweet_id in tweet_ids:
-    print(tweet_id)
-'''
 
 if __name__ == '__main__':
     app.run(debug=True)
