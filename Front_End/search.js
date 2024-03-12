@@ -2,10 +2,6 @@ document.addEventListener("DOMContentLoaded", function()
 {
   const searchBar = document.querySelector(".search-bar")
   var domain = window.location.origin
-  if (domain.includes("5501")) 
-  {
-    domain = domain.replace("5501", "5000");
-  }
 
   // Event listener for "Enter" key
   searchBar.addEventListener("keydown", function(event) 
@@ -16,12 +12,12 @@ document.addEventListener("DOMContentLoaded", function()
       const value4url = encodeURIComponent(searchValue.slice(1))
       if (searchValue[0] === "#")
       {
-        const searchResultsUrl = `${domain}/tweets4topic.html?topic=${value4url}`
+        const searchResultsUrl = `${domain}/Front_End/tweets4topic.html?topic=${value4url}`
         window.location.href = searchResultsUrl
       }
       else if (searchValue[0] === "@")
       {
-        const searchResultsUrl = `${domain}/tweets4user.html?user=${value4url}`
+        const searchResultsUrl = `${domain}/Front_End/tweets4user.html?user=${value4url}`
         window.location.href = searchResultsUrl
       }
       else

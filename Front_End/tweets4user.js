@@ -1,7 +1,7 @@
 function displayTweet(content, user, topic, date, time)
 {
   var container = document.getElementById("tweets_container")
-  var title = container.getElementById("title")
+  var title = document.getElementById("title")
   var tweetDiv = document.createElement('div')
   tweetDiv.classList.add('tweet')
   
@@ -43,22 +43,8 @@ function fetchTweetsFromRedis()
 {
   // AJAX request to the API
   let retrieved_tweets = []
-  let domain = window.location.origin
   const topic_filter = getQuery("topic")
   const value4url = encodeURIComponent(topic_filter)
-  if (domain.includes("5501")) 
-  {
-    domain = domain.replace("5501", "5000");
-  }
-  console.log(`${domain}/tweets4user?user=${value4url}`)
-  /*
-  Tried forcing the webpage not to use CORS, but still not working...
-  fetch(`${domain}/tweets4topic?topic=${value4url}`, 
-  {
-    method: 'GET',
-    mode: 'no-cors'
-  })
-  */
   fetch(`https://zany-fishstick-jjjjg7964rpcp557-5000.app.github.dev/tweets4user?user=${value4url}`,
   {
     method: 'GET',
