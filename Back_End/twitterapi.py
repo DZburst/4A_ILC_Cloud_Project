@@ -44,6 +44,7 @@ def add_user(username, password, user_id):
 
 # You can call this function to add users, for example:
 add_user('Asmae', 'pswd', 123)
+add_user('Rayan', '1234', 213)
 
 
 def add_sample_tweets():
@@ -59,23 +60,8 @@ def add_sample_tweets():
         redis_client.lpush('tweets', tweet_id)
 
 
-def add_sample_users():
-    sample_users = {
-        'Asmae': {'password': hashlib.sha256('pswd'.encode()).hexdigest(),'user_id': 123,'tweets': ['tweet_id1', 'tweet_id2']},
-        'Rayan': {'password': hashlib.sha256('1234'.encode()).hexdigest(),'user_id': 213,'tweets': ['tweet_id3', 'tweet_id4']}
-    }
-
-    for username, user_data in sample_users.items():
-        user_data['tweets'] = ', '.join(user_data['tweets'])    # Redis doesn't accept lists -> conversion to string
-        redis_client.hmset(username, user_data)
-        redis_client.lpush('users', username)
-
-
 if redis_client.llen('tweets') == 0:
     add_sample_tweets()
-
-if redis_client.llen('users') == 0:
-    add_sample_users()
 
 
 @app.route('/signup', methods=['POST'])
@@ -216,22 +202,6 @@ def retweet():
     data = request.json
     tweet_id = data.get('tweet_id')
     username = data.get('username')
-<<<<<<< HEAD
-    print(f"Received data: {data}")
-
-    if redis_client.exists(tweet_id):
-        original_tweet_content = redis_client.hget(tweet_id, 'content')
-        original_tweet_user = redis_client.hget(tweet_id, 'user')
-        original_tweet_topic = redis_client.hget(tweet_id, 'topic')
-        retweet_id = 'tweet_id' + str(int(time.time()))
-        retweet_content = f" {username} Retweeted: {original_tweet_content}"
-        retweet = {
-            'content': retweet_content,
-            'user': original_tweet_user,
-            'topic': original_tweet_topic,
-            'date': time.strftime('%Y-%m-%d'),
-            'time': time.strftime('%H:%M:%S')
-=======
     content = data.get('content') + '\n\n' + redis_client.hget(data.get('tweet_id'))
     topic = data.get('topic')
 
@@ -259,16 +229,10 @@ def retweet():
             'topic': topic,
             'date': tweet_date.strftime('%Y-%m-%d'),
             'time': tweet_date.strftime('%H:%M:%S')
->>>>>>> 6a51f1e24c010cf691753c79da800ade5fcdd49f
         }
         redis_client.hmset(retweet_id, retweet)
         redis_client.lpush('tweets', retweet_id)
 
-<<<<<<< HEAD
-        return jsonify({'message': 'Retweet successful', 'tweet_id': retweet_id}), 201
-    else:
-        return jsonify({'message': 'Tweet not found'}), 404
-=======
         # Update these lines based on your actual Redis usage
         redis_client.hset(tweet_id, mapping=tweets[tweet_id])
         redis_client.lpush('tweets', tweet_id)
@@ -283,7 +247,6 @@ def retweet():
         return response, 201
     else:
         return jsonify({'message': 'User not found'}), 400
->>>>>>> 6a51f1e24c010cf691753c79da800ade5fcdd49f
 
 
 '''
