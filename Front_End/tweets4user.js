@@ -21,7 +21,7 @@ function displayTweet(content, user, topic, date, time)
   dateDiv.classList.add('date')
   dateDiv.textContent = `${date} ${time}`
 
-  title.textContent = "Tweets about #" + topic
+  title.textContent = "Tweets of @" + user
 
   tweetDiv.appendChild(contentDiv)
 
@@ -50,7 +50,7 @@ function fetchTweetsFromRedis()
   {
     domain = domain.replace("5501", "5000");
   }
-  console.log(`${domain}/tweets4topic?topic=${value4url}`)
+  console.log(`${domain}/tweets4user?user=${value4url}`)
   /*
   Tried forcing the webpage not to use CORS, but still not working...
   fetch(`${domain}/tweets4topic?topic=${value4url}`, 
@@ -59,7 +59,7 @@ function fetchTweetsFromRedis()
     mode: 'no-cors'
   })
   */
-  fetch(`https://zany-fishstick-jjjjg7964rpcp557-5000.app.github.dev/tweets4topic?topic=${value4url}`,
+  fetch(`https://zany-fishstick-jjjjg7964rpcp557-5000.app.github.dev/tweets4user?user=${value4url}`,
   {
     method: 'GET',
     mode: 'cors',

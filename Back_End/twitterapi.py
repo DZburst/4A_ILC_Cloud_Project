@@ -7,8 +7,13 @@ import redis
 import time
 
 # Connect to Redis
-redis_client = redis.Redis(host='localhost', port=6379,
+# redis_host = "host.docker.internal"  # This is for Docker for Windows/Mac
+# redis_port = 6379
+# redis_client = redis.StrictRedis(host=redis_host, port=redis_port, db=0, decode_responses=True)
+redis_client = redis.Redis(host='172.17.0.2', port=6379,
                            db=0, decode_responses=True)
+#docker run --name myredis --rm -p 6379:6379 redis
+
 
 app = Flask(__name__)
 CORS(app)
@@ -43,8 +48,10 @@ add_user('Asmae', 'pswd', 123)
 
 def add_sample_tweets():
     sample_tweets = {
-        'tweet_id4': {'content': 'Sample tweet 1', 'user': 'user4', 'topic': 'sample', 'date': '2024-01-01', 'time': '12:00'},
-        'tweet_id5': {'content': 'Sample tweet 2', 'user': 'user5', 'topic': 'sample', 'date': '2024-01-02', 'time': '13:00'}
+        'tweet_id1': {'content': 'Sample tweet 1', 'user': 'Asmae', 'topic': 'sample', 'date': '2024-01-01', 'time': '12:00'},
+        'tweet_id2': {'content': 'Sample tweet 2', 'user': 'Asmae', 'topic': 'sample', 'date': '2024-01-02', 'time': '15:00'},
+        'tweet_id3': {'content': 'Sample tweet 3', 'user': 'Rayan', 'topic': 'sample', 'date': '2024-01-01', 'time': '13:00'},
+        'tweet_id4': {'content': 'Sample tweet 4', 'user': 'Rayan', 'topic': 'sample', 'date': '2024-01-02', 'time': '14:00'}
     }
 
     for tweet_id, tweet_data in sample_tweets.items():
@@ -52,8 +59,23 @@ def add_sample_tweets():
         redis_client.lpush('tweets', tweet_id)
 
 
+def add_sample_users():
+    sample_users = {
+        'Asmae': {'password': hashlib.sha256('pswd'.encode()).hexdigest(),'user_id': 123,'tweets': ['tweet_id1', 'tweet_id2']},
+        'Rayan': {'password': hashlib.sha256('1234'.encode()).hexdigest(),'user_id': 213,'tweets': ['tweet_id3', 'tweet_id4']}
+    }
+
+    for username, user_data in sample_users.items():
+        user_data['tweets'] = ', '.join(user_data['tweets'])    # Redis doesn't accept lists -> conversion to string
+        redis_client.hmset(username, user_data)
+        redis_client.lpush('users', username)
+
+
 if redis_client.llen('tweets') == 0:
     add_sample_tweets()
+
+if redis_client.llen('users') == 0:
+    add_sample_users()
 
 
 @app.route('/signup', methods=['POST'])
@@ -163,8 +185,9 @@ def tweet4topic():
             tweets_for_topic.append(tweet)
     if len(tweets_for_topic) == 0:
         error_msg = "No such topic yet..."
-
-    return jsonify(tweets_for_topic)
+        return jsonify(error_msg)
+    else:
+        return jsonify(tweets_for_topic)
 
 
 @app.route('/tweets4user', methods=['GET'])
@@ -182,8 +205,10 @@ def userTweets():
             user_tweets.append(tweet)
     if len(user_tweets) == 0:
         error_msg = "This user hasn't tweetyd yet or doesn't exist..."
+        return jsonify(error_msg)
+    else:
+        return jsonify(user_tweets)
 
-    return jsonify(user_tweets)
 
 
 @app.route('/retweet', methods=['POST'])
@@ -191,6 +216,7 @@ def retweet():
     data = request.json
     tweet_id = data.get('tweet_id')
     username = data.get('username')
+<<<<<<< HEAD
     print(f"Received data: {data}")
 
     if redis_client.exists(tweet_id):
@@ -205,13 +231,59 @@ def retweet():
             'topic': original_tweet_topic,
             'date': time.strftime('%Y-%m-%d'),
             'time': time.strftime('%H:%M:%S')
+=======
+    content = data.get('content') + '\n\n' + redis_client.hget(data.get('tweet_id'))
+    topic = data.get('topic')
+
+    # Check if user exists
+    if username in users:
+        data = request.json
+    print(f"Received data: {data}")
+    username = data.get('user')
+    content = data.get('content')
+    topic = data.get('topic')
+    date_str = data.get('date')
+
+    # Check if user exists
+    if username in users:
+        # Create a unique tweet ID based on the current timestamp
+        tweet_id = 'tweet_id' + str(int(time.time()))
+
+        # Parse date string to a datetime object
+        tweet_date = datetime.strptime(date_str, "%Y-%m-%dT%H:%M:%S.%fZ")
+
+        # Create the tweet
+        tweets[tweet_id] = {
+            'content': content,
+            'user': username,
+            'topic': topic,
+            'date': tweet_date.strftime('%Y-%m-%d'),
+            'time': tweet_date.strftime('%H:%M:%S')
+>>>>>>> 6a51f1e24c010cf691753c79da800ade5fcdd49f
         }
         redis_client.hmset(retweet_id, retweet)
         redis_client.lpush('tweets', retweet_id)
 
+<<<<<<< HEAD
         return jsonify({'message': 'Retweet successful', 'tweet_id': retweet_id}), 201
     else:
         return jsonify({'message': 'Tweet not found'}), 404
+=======
+        # Update these lines based on your actual Redis usage
+        redis_client.hset(tweet_id, mapping=tweets[tweet_id])
+        redis_client.lpush('tweets', tweet_id)
+
+        # Add tweet ID to the user's list of tweets to facilitate access to users' tweets
+        users[username]['tweets'].append(tweet_id)
+
+        response = jsonify({'message': 'Tweet posted'})
+        response.headers.add('Access-Control-Allow-Origin',
+                             'http://localhost:5500')
+        response.headers.add('Access-Control-Allow-Credentials', 'true')
+        return response, 201
+    else:
+        return jsonify({'message': 'User not found'}), 400
+>>>>>>> 6a51f1e24c010cf691753c79da800ade5fcdd49f
 
 
 '''
