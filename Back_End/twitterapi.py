@@ -48,14 +48,15 @@ add_user('Rayan', '1234', 213)
 def add_sample_tweets():
     sample_tweets = {
         'tweet_id1': {'content': 'Sample tweet 1', 'user': 'Asmae', 'topic': 'sample', 'date': '2024-01-01', 'time': '12:00'},
-        'tweet_id2': {'content': 'Sample tweet 2', 'user': 'Asmae', 'topic': 'sample', 'date': '2024-01-02', 'time': '15:00'},
+        'tweet_id2': {'content': 'Sample tweet 2', 'user': 'Asmae', 'topic': 'not_sample', 'date': '2024-01-02', 'time': '15:00'},
         'tweet_id3': {'content': 'Sample tweet 3', 'user': 'Rayan', 'topic': 'sample', 'date': '2024-01-01', 'time': '13:00'},
-        'tweet_id4': {'content': 'Sample tweet 4', 'user': 'Rayan', 'topic': 'sample', 'date': '2024-01-02', 'time': '14:00'}
+        'tweet_id4': {'content': 'Sample tweet 4', 'user': 'Rayan', 'topic': 'not_sample', 'date': '2024-01-02', 'time': '14:00'}
     }
 
     for tweet_id, tweet_data in sample_tweets.items():
         redis_client.hmset(tweet_id, tweet_data)
         redis_client.lpush('tweets', tweet_id)
+        redis_client.sadd('topics', tweet_data['topic'])
 
 
 if redis_client.llen('tweets') == 0:
@@ -87,17 +88,6 @@ def sign_up():
     return jsonify({'message': 'User registered successfully', 'user_id': user_id}), 201
 
 
-# route for displaying the tweets
-@app.route('/alltweets', methods=['GET'])
-def all_tweets():
-    tweet_ids = redis_client.lrange('tweets', 0, -1)
-
-    all_tweets = [
-        {'id': tweet_id, **redis_client.hgetall(tweet_id)} for tweet_id in tweet_ids]
-
-    return jsonify(all_tweets)
-
-
 @app.route('/login', methods=['POST'])
 def login():
     data = request.json
@@ -110,6 +100,19 @@ def login():
         if user['password'] == hashed_password:
             return jsonify({'message': 'Login successful', 'userID': user['user_id']}), 200
     return jsonify({'message': 'Invalid username or password'}), 401
+
+
+@app.route('/alltweets', methods=['GET'])
+def all_tweets():
+    tweet_ids = redis_client.lrange('tweets', 0, -1)
+    all_tweets = [{'id': tweet_id, **redis_client.hgetall(tweet_id)} for tweet_id in tweet_ids]
+    return jsonify(all_tweets)
+
+
+@app.route('/alltopics', methods=['GET'])
+def all_topics():
+    topics = redis_client.smembers('topics')
+    return jsonify({'topics': list(topics)})
 
 
 @app.route('/tweet', methods=['POST'])
@@ -144,6 +147,9 @@ def tweet():
 
         # Add tweet ID to the user's list of tweets to facilitate access to users' tweets
         redis_client.rpush(f"user:{username}:tweets", tweet_id)
+
+        # Add the tweet's topic to the set of unique topics
+        redis_client.sadd('topics', topic)
 
         response = jsonify({'message': 'Tweet posted'})
         response.headers.add('Access-Control-Allow-Origin',

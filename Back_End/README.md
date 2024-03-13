@@ -6,11 +6,6 @@
 
 ## Endpoints and Functionalities
 
-### `/alltweets` (GET)
-- **Description**: Display all the tweets stored in Redis.
-- **Request Body**: None.
-- **Returns**: A JSON array containing all the tweets.
-
 ### `/signup` (POST)
 - **Description**: Manages the Signup page, sending the necessary data to the corresponding page in the Front End. Passwords are hashed to ensure security.
 - **Request Body**:
@@ -28,6 +23,16 @@
 - **Returns**:
   - `200 OK` if login is successful, with user_id as well.
   - `401 Unauthorized` if invalid username or password.
+
+### `/alltweets` (GET)
+- **Description**: Display all the tweets stored in Redis.
+- **Request Body**: None.
+- **Returns**: A JSON containing all the tweets.
+
+### `/alltopics` (GET)
+- **Description**: Display all the different topics from the tweets stored in Redis.
+- **Request Body**: None.
+- **Returns**: A JSON containing all the tweets.
 
 ### `/tweet` (POST)
 - **Description**: Creates a new tweet and stores it in the Redis database.
