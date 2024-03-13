@@ -33,3 +33,5 @@
 * JavaScript was used for client-side scripting, enabling dynamic content management and API interactions.
 * We faced challenges with CORS when attempting to communicate with the back-end server, and we are actively working to resolve these issues.
 
+  > Update : The issue was successfully solved.
+
