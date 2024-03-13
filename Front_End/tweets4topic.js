@@ -39,43 +39,29 @@ function getQuery(value)
 }
 
 
-function fetchTweetsFromRedis() 
-{
-  // AJAX request to the API
-  let retrieved_tweets = []
-  const topic_filter = getQuery("topic")
-  const value4url = encodeURIComponent(topic_filter)
-  fetch(`localhost/tweets4topic?topic=${value4url}`,
-  {
-    method: 'GET',
-    mode: 'cors',
-    headers : {
+function fetchTweetsFromRedis() {
+  let retrieved_tweets = [];
+  const topic_filter = getQuery("topic");
+
+  fetch('http://localhost:5000/tweets4topic', { // Use your actual server URL here
+    method: 'POST',
+    headers: {
       'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ topic: topic_filter })
+  })
+  .then(response => response.json())
+  .then(tweets => {
+    console.log(tweets);
+    for (let tweet of tweets) { // Fixed iteration over array
+      displayTweet(tweet.content, tweet.user, tweet.topic, tweet.date, tweet.time);
     }
   })
-    .then(response => response.json())
-    .then(tweets => 
-    {
-      console.log(tweets)
-      for (let i = 0; i < tweets.length; i++) 
-      {
-        let tweet = tweets[i]
-        retrieved_tweets.push(tweet)
-      }
-      for (let tweet_value in retrieved_tweets)
-      {
-        let content = tweet_value["content"]
-        let user = tweet_value["user"]
-        let topic = tweet_value["topic"]
-        let date = tweet_value["date"]
-        let time = tweet_value["time"]
-        displayTweet(content, date, time, topic, user)
-      }
-    })
-    .catch(error => {
-      console.error('Error fetching tweets:', error)
-    })
+  .catch(error => {
+    console.error('Error fetching tweets:', error);
+  });
 }
+
 
 document.addEventListener("DOMContentLoaded", function() 
 {

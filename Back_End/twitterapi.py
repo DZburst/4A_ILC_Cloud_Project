@@ -193,9 +193,10 @@ def retweet():
         return jsonify({'message': 'Tweet not found'}), 404
 
 
-@app.route('/tweets4topic', methods=['GET'])
+@app.route('/tweets4topic', methods=['POST'])
 def tweet4topic():
-    topic_query = str(request.args.get('topic'))
+    data = request.json
+    topic_query = data.get('topic')
 
     # Get all tweet IDs from Redis
     tweet_ids = redis_client.lrange('tweets', 0, -1)
@@ -206,16 +207,18 @@ def tweet4topic():
         tweet = redis_client.hgetall(tweet_id)
         if tweet.get('topic') == topic_query:
             tweets_for_topic.append(tweet)
+
     if len(tweets_for_topic) == 0:
         error_msg = "No such topic yet..."
-        return jsonify(error_msg)
+        return jsonify({'error': error_msg}), 404
     else:
         return jsonify(tweets_for_topic)
 
 
-@app.route('/tweets4user', methods=['GET'])
+@app.route('/tweets4user', methods=['POST'])
 def userTweets():
-    user = request.args.get('user')
+    data = request.json
+    user = data.get('user')
 
     # Get all tweet IDs from Redis
     tweet_ids = redis_client.lrange('tweets', 0, -1)
@@ -227,7 +230,7 @@ def userTweets():
         if tweet.get('user') == user:
             user_tweets.append(tweet)
     if len(user_tweets) == 0:
-        error_msg = "This user hasn't tweetyd yet or doesn't exist..."
+        error_msg = "This user hasn't tweeted yet or doesn't exist..."
         return jsonify(error_msg)
     else:
         return jsonify(user_tweets)

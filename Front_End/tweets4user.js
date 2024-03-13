@@ -1,3 +1,9 @@
+function getQuery(value) 
+{
+    const urlParams = new URLSearchParams(window.location.search)
+    return urlParams.get(value)
+}
+
 function displayTweet(content, user, topic, date, time)
 {
   var container = document.getElementById("tweets_container")
@@ -31,50 +37,27 @@ function displayTweet(content, user, topic, date, time)
   container.appendChild(tweetDiv)
 }
 
+function fetchTweetsFromRedis() {
+  let retrieved_tweets = [];
+  const user_filter = getQuery("user");
 
-function getQuery(value) 
-{
-    const urlParams = new URLSearchParams(window.location.search)
-    return urlParams.get(value)
-}
-
-
-function fetchTweetsFromRedis() 
-{
-  // AJAX request to the API
-  let retrieved_tweets = []
-  const topic_filter = getQuery("topic")
-  const value4url = encodeURIComponent(topic_filter)
-  fetch(`https://zany-fishstick-jjjjg7964rpcp557-5000.app.github.dev/tweets4user?user=${value4url}`,
-  {
-    method: 'GET',
-    mode: 'cors',
-    headers : {
+  fetch('http://localhost:5000/tweets4user', {
+    method: 'POST',
+    headers: {
       'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ user: user_filter })
+  })
+  .then(response => response.json())
+  .then(tweets => {
+    console.log(tweets);
+    for (let tweet of tweets) { 
+      displayTweet(tweet.content, tweet.user, tweet.topic, tweet.date, tweet.time);
     }
   })
-    .then(response => response.json())
-    .then(tweets => 
-    {
-      console.log(tweets)
-      for (let i = 0; i < tweets.length; i++) 
-      {
-        let tweet = tweets[i]
-        retrieved_tweets.push(tweet)
-      }
-      for (let tweet_value in retrieved_tweets)
-      {
-        let content = tweet_value["content"]
-        let user = tweet_value["user"]
-        let topic = tweet_value["topic"]
-        let date = tweet_value["date"]
-        let time = tweet_value["time"]
-        displayTweet(content, date, time, topic, user)
-      }
-    })
-    .catch(error => {
-      console.error('Error fetching tweets:', error)
-    })
+  .catch(error => {
+    console.error('Error fetching tweets:', error);
+  });
 }
 
 document.addEventListener("DOMContentLoaded", function() 

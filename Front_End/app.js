@@ -58,7 +58,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 const tweetElement = tweetTemplate.content.cloneNode(true);
     
                 tweetElement.querySelector('.text-lg').textContent = tweetData.content;
-                tweetElement.querySelector('.text-sm.text-gray-600').textContent = `${tweetData.user} - ${tweetData.topic}`;
+                const userInfo = `<a href="tweets4user.html?user=${tweetData.user}" class="user-link">${tweetData.user}</a> - ${tweetData.topic}`;
+                tweetElement.querySelector('.text-sm.text-gray-600').innerHTML = userInfo;
                 tweetElement.querySelector('.text-sm.text-gray-500').textContent = `${tweetData.date} ${tweetData.time}`;
     
                 tweetElement.querySelector('button').addEventListener('click', () => retweet(tweetData.id));
@@ -103,6 +104,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     const searchBar = document.getElementById('searchBar');
+    const searchbut = document.getElementById('search');
     const topicsContainer = document.getElementById('topicsContainer'); // Container to display topics
 
     searchBar.addEventListener('focus', function() {
@@ -136,8 +138,12 @@ document.addEventListener('DOMContentLoaded', function() {
             // Add event listener for clicking a topic
             topicDiv.addEventListener('click', function() {
                 searchBar.value = topic; 
-                
-                
+                window.location.href = `tweets4topic.html?topic=${encodeURIComponent(topic)}`;
+            });
+            searchbut.addEventListener('click',function(){
+                if (topic!=''){
+                    window.location.href = `tweets4topic.html?topic=${encodeURIComponent(topic)}`;
+                }
             });
         });
     }
