@@ -126,7 +126,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
         // Clear existing topics
         topicsContainer.innerHTML = '';
-    
+        topicsContainer.innerHTML = '<div class="staticTopicText" style="font-weight: bold; color: black;">Some Popular Topics</div>';
         // Add each topic to the suggestions container
         topics.forEach(topic => {
             const topicDiv = document.createElement('div');
@@ -135,8 +135,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
             // Add event listener for clicking a topic
             topicDiv.addEventListener('click', function() {
-                searchBar.value = topic; // Update the search bar with the topic
-                // Optionally, you can also automatically trigger a search here
+                searchBar.value = topic; 
+                
+                
             });
         });
     }

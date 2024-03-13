@@ -45,7 +45,6 @@ def add_user(username, password, user_id):
     })
 
 
-# You can call this function to add users, for example:
 add_user('Asmae', 'pswd', 123)
 add_user('Rayan', '1234', 213)
 
