@@ -1,17 +1,22 @@
-import datetime
 import hashlib
+import time
 from flask import Flask, jsonify, request
+import redis
+import os
+import logging
 from datetime import datetime
 from flask_cors import CORS, cross_origin
-import redis
-import time
 
-# redis_host = '172.17.0.2' for CORS normally
-redis_client = redis.Redis(host='172.17.0.2', port=6379,
-                           db=0, decode_responses=True)
+redis_host = os.environ.get('REDIS_HOST', 'localhost')
+redis_port = os.environ.get('REDIS_PORT', 6379)
 
-# docker run --name myredis --rm -p 6379:6379 redis
+redis_client = redis.Redis(
+    host=redis_host, port=redis_port, db=0, decode_responses=True)
 
+app = Flask(__name__)
+CORS(app)
+
+logging.basicConfig(level=logging.INFO)
 
 app = Flask(__name__)
 CORS(app)

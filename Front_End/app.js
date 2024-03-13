@@ -101,5 +101,45 @@ document.addEventListener('DOMContentLoaded', function() {
         .catch(error => {
             console.error('Error:', error);
         });
-    } 
+    }
+    const searchBar = document.getElementById('searchBar');
+    const topicsContainer = document.getElementById('topicsContainer'); // Container to display topics
+
+    searchBar.addEventListener('focus', function() {
+        fetchTopics();
+    });
+    function fetchTopics() {
+        fetch('http://localhost:5000/alltopics')
+            .then(response => response.json())
+            .then(data => {
+                displayTopics(data.topics);
+            })
+            .catch(error => console.error('Error fetching topics:', error));
+    }
+    
+    function displayTopics(topics) {
+        const topicsContainer = document.getElementById('topicSuggestions');
+        if (!topicsContainer) {
+            console.error('Topic suggestions container not found');
+            return;
+        }
+    
+        // Clear existing topics
+        topicsContainer.innerHTML = '';
+    
+        // Add each topic to the suggestions container
+        topics.forEach(topic => {
+            const topicDiv = document.createElement('div');
+            topicDiv.textContent = topic;
+            topicsContainer.appendChild(topicDiv);
+    
+            // Add event listener for clicking a topic
+            topicDiv.addEventListener('click', function() {
+                searchBar.value = topic; // Update the search bar with the topic
+                // Optionally, you can also automatically trigger a search here
+            });
+        });
+    }
+    
+    
 });

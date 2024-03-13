@@ -5,18 +5,53 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Twitter Feed</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
-</head>
-<body class="bg-gray-100">
+    <style>
+      .topic-suggestions {
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-top: 8px; /* Spacing between the search bar and the suggestions */
+    max-height: 300px; /* Adjust as needed */
+    overflow-y: auto; /* Makes it scrollable if there are many suggestions */
+    position: absolute; /* To float over other content */
+    width: 100%; /* Match the width of the search bar */
+    z-index: 1000; /* Ensure it's above other content */
+    }
 
-  <!-- Navbar -->
-  <nav class="bg-blue-500 p-4 text-white">
-    <ul class="flex justify-between max-w-6xl mx-auto">
-      <li><a href="#" class="hover:text-blue-300">Home</a></li>
-      <li><a href="#" class="hover:text-blue-300">Explore</a></li>
-      <li><a href="#" class="hover:text-blue-300">Notifications</a></li>
-      <!-- Add more navbar items here -->
-    </ul>
-  </nav>
+    .topic-suggestions div {
+        padding: 8px 16px;
+        cursor: pointer;
+        line-height: 1.5;
+        color: black;
+    }
+
+    .topic-suggestions div:hover {
+        background-color: #f0f0f0; /* Color change on hover */
+    }
+
+    </style>
+  </head>
+  <body class="bg-gray-100">
+    <!-- Navbar -->
+    <nav class="bg-blue-500 p-4 text-white">
+      <div class="flex justify-between max-w-6xl mx-auto">
+        <ul class="flex">
+          <li><a href="#" class="hover:text-blue-300">Home</a></li>
+          <li><a href="#" class="hover:text-blue-300">Explore</a></li>
+          <li><a href="#" class="hover:text-blue-300">Notifications</a></li>
+          <!-- Other navbar items -->
+        </ul>
+        <!-- Search Bar -->
+        <div class="relative">
+          <input type="search" id="searchBar" class="bg-white h-10 px-5 pr-10 rounded-full text-sm focus:outline-none text-black" placeholder="Search topics...">
+          <button type="submit" class="absolute right-0 top-0 mt-3 mr-4">
+            🔍
+          </button>
+          <div id="topicSuggestions" class="topic-suggestions"></div>        
+        </div>
+      </div>
+    </nav>
 
   <div class="container mx-auto p-4 flex">
     <!-- Main content -->
