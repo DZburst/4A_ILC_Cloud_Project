@@ -216,7 +216,6 @@ def retweet():
     data = request.json
     tweet_id = data.get('tweet_id')
     username = data.get('username')
-<<<<<<< HEAD
     print(f"Received data: {data}")
 
     if redis_client.exists(tweet_id):
@@ -231,59 +230,13 @@ def retweet():
             'topic': original_tweet_topic,
             'date': time.strftime('%Y-%m-%d'),
             'time': time.strftime('%H:%M:%S')
-=======
-    content = data.get('content') + '\n\n' + redis_client.hget(data.get('tweet_id'))
-    topic = data.get('topic')
-
-    # Check if user exists
-    if username in users:
-        data = request.json
-    print(f"Received data: {data}")
-    username = data.get('user')
-    content = data.get('content')
-    topic = data.get('topic')
-    date_str = data.get('date')
-
-    # Check if user exists
-    if username in users:
-        # Create a unique tweet ID based on the current timestamp
-        tweet_id = 'tweet_id' + str(int(time.time()))
-
-        # Parse date string to a datetime object
-        tweet_date = datetime.strptime(date_str, "%Y-%m-%dT%H:%M:%S.%fZ")
-
-        # Create the tweet
-        tweets[tweet_id] = {
-            'content': content,
-            'user': username,
-            'topic': topic,
-            'date': tweet_date.strftime('%Y-%m-%d'),
-            'time': tweet_date.strftime('%H:%M:%S')
->>>>>>> 6a51f1e24c010cf691753c79da800ade5fcdd49f
         }
         redis_client.hmset(retweet_id, retweet)
         redis_client.lpush('tweets', retweet_id)
 
-<<<<<<< HEAD
         return jsonify({'message': 'Retweet successful', 'tweet_id': retweet_id}), 201
     else:
         return jsonify({'message': 'Tweet not found'}), 404
-=======
-        # Update these lines based on your actual Redis usage
-        redis_client.hset(tweet_id, mapping=tweets[tweet_id])
-        redis_client.lpush('tweets', tweet_id)
-
-        # Add tweet ID to the user's list of tweets to facilitate access to users' tweets
-        users[username]['tweets'].append(tweet_id)
-
-        response = jsonify({'message': 'Tweet posted'})
-        response.headers.add('Access-Control-Allow-Origin',
-                             'http://localhost:5500')
-        response.headers.add('Access-Control-Allow-Credentials', 'true')
-        return response, 201
-    else:
-        return jsonify({'message': 'User not found'}), 400
->>>>>>> 6a51f1e24c010cf691753c79da800ade5fcdd49f
 
 
 '''
