@@ -12,6 +12,7 @@ redis_port = os.environ.get('REDIS_PORT', 6379)
 
 redis_client = redis.Redis(
     host=redis_host, port=redis_port, db=0, decode_responses=True)
+# docker run -p 6379:6379 --name myredis --rm redis
 
 app = Flask(__name__)
 CORS(app)
