@@ -34,4 +34,4 @@ Our GitHubs :
 
 ## Microservice Architecture
 
-<img src="/workspaces/4A_ILC_Cloud_Project/MicroserviceArchitecture.png" alt="Microservice Architecture" style="height: 400px; width:750px;"/>
+<img src="./MicroserviceArchitecture.png" alt="Microservice Architecture" style="height: 400px; width:750px;"/>

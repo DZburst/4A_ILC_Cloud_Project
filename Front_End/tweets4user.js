@@ -45,7 +45,7 @@ function fetchTweetsFromRedis()
   let retrieved_tweets = []
   const topic_filter = getQuery("topic")
   const value4url = encodeURIComponent(topic_filter)
-  fetch(`https://zany-fishstick-jjjjg7964rpcp557-5000.app.github.dev/tweets4user?user=${value4url}`,
+  fetch(`http://127.0.0.1:5000/tweets4user?user=${value4url}`,
   {
     method: 'GET',
     mode: 'cors',

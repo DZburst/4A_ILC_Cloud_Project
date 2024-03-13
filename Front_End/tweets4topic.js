@@ -45,7 +45,7 @@ function fetchTweetsFromRedis()
   let retrieved_tweets = []
   const topic_filter = getQuery("topic")
   const value4url = encodeURIComponent(topic_filter)
-  fetch(`localhost/tweets4topic?topic=${value4url}`,
+  fetch(`http://127.0.0.1:5000/tweets4topic?topic=${value4url}`,
   {
     method: 'GET',
     mode: 'cors',
