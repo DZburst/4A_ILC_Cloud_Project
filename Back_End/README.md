@@ -72,21 +72,12 @@
 
 ---
 
-## Technical Choices and Issues
+## Technical Choices / Issues
 
-### CORS Issues :
+### CORS Issues : `SOLVED`
   
-  We had several issues with CORS, whenever we try to fetch data, for Login as well as for research and tweets display. We first used the Flask development environnement as seen during the previous project, but it eventually led us to the following error : 
-  
-  ```bash
-  Access to fetch at 'https://zany-fishstick-jjjjg7964rpcp557-5000.app.github.dev/login' from origin 'https://zany-fishstick-jjjjg7964rpcp557-5501.app.github.dev' has been blocked by CORS policy: Response to preflight request doesn't pass access control check: No 'Access-Control-Allow-Origin' header is present on the requested resource. If an opaque response serves your needs, set the request's mode to 'no-cors' to fetch the resource with CORS disabled.
-  ```
+  After several attempts, we were able to find the cause of the fetch issues thrown by CORS : some requests were set to GET rather than POST in the JS files, plus some paths weren't correct, because of the problem with Codespace.
 
-  We tried several options, by modifying several parts of the code : 
-  * First we used different configurations for the fetch, in *tweets4topic.js* for instance, by trying to turn on or off the *cors mode* ; we also specified explicitly the origin, without any success, and also tried to modify the headers ; we would eventually come back to the initial error.
+### Codespace and Docker Issues : `NO MORE RELEVANT`
 
-  Eventually, we focused on the remaining part of the Back End, with RabbitMQ for instance, which seemed more constructive than solving this issue.
-
-### Codespace and Docker Issues :
-
-  * Since the codespace doesn't allow us to work directly with localhost (or 127.0.0.1), we had to modify several parts of the code, notably in the JavaScript files concerning URLs and fetching. Eventually, I tried to use VSCode, but since we don't have admin rights on the school's PCs, I couldn't download Docker; thus, codespace was the best option. Note that the problems occurred only for the binome using codespace; however, the other binome that used their personal PC was able to execute their side of the project, so the tweeting, retweeting, and display of tweets works fine.
+  Since the codespace doesn't allow us to work directly with localhost (or 127.0.0.1), we had to modify several parts of the code, notably in the JavaScript files concerning URLs and fetching. Eventually, I tried to use VSCode, but since we don't have admin rights on the school's PCs, I couldn't download Docker; thus, codespace was the best option. Note that the problems occurred only for the binome using codespace; however, the other binome that used their personal PC was able to execute their side of the project, so the tweeting, retweeting, and display of tweets works fine.
