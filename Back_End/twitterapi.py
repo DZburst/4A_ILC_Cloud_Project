@@ -5,6 +5,7 @@ from datetime import datetime
 from flask_cors import CORS, cross_origin
 import redis
 import time
+import pika
 
 # redis_host = '172.17.0.2' for CORS normally
 redis_client = redis.Redis(host='172.17.0.2', port=6379,
@@ -12,6 +13,10 @@ redis_client = redis.Redis(host='172.17.0.2', port=6379,
 
 # docker run --name myredis --rm -p 6379:6379 redis
 
+# Establish connection to RabbitMQ
+connection = pika.BlockingConnection(pika.ConnectionParameters('127.0.0.1'))
+channel = connection.channel()
+channel.queue_declare(queue='tweet_queue')
 
 app = Flask(__name__)
 CORS(app)
@@ -47,10 +52,10 @@ add_user('Rayan', '1234', 213)
 
 def add_sample_tweets():
     sample_tweets = {
-        'tweet_id1': {'content': 'Sample tweet 1', 'user': 'Asmae', 'topic': 'sample', 'date': '2024-01-01', 'time': '12:00'},
-        'tweet_id2': {'content': 'Sample tweet 2', 'user': 'Asmae', 'topic': 'not_sample', 'date': '2024-01-02', 'time': '15:00'},
-        'tweet_id3': {'content': 'Sample tweet 3', 'user': 'Rayan', 'topic': 'sample', 'date': '2024-01-01', 'time': '13:00'},
-        'tweet_id4': {'content': 'Sample tweet 4', 'user': 'Rayan', 'topic': 'not_sample', 'date': '2024-01-02', 'time': '14:00'}
+        'tweet_id1': {'content': 'Sample tweet 1', 'user': 'Asmae', 'topic': ['sample'], 'date': '2024-01-01', 'time': '12:00'},
+        'tweet_id2': {'content': 'Sample tweet 2', 'user': 'Asmae', 'topic': ['not_sample'], 'date': '2024-01-02', 'time': '15:00'},
+        'tweet_id3': {'content': 'Sample tweet 3', 'user': 'Rayan', 'topic': ['sample'], 'date': '2024-01-01', 'time': '13:00'},
+        'tweet_id4': {'content': 'Sample tweet 4', 'user': 'Rayan', 'topic': ['not_sample'], 'date': '2024-01-02', 'time': '14:00'}
     }
 
     for tweet_id, tweet_data in sample_tweets.items():
@@ -136,24 +141,23 @@ def tweet():
         tweets[tweet_id] = {
             'content': content,
             'user': username,
-            'topic': topic,
+            'topic': [topic],
             'date': tweet_date.strftime('%Y-%m-%d'),
             'time': tweet_date.strftime('%H:%M:%S')
         }
 
-        # Update these lines based on your actual Redis usage
         redis_client.hset(tweet_id, mapping=tweets[tweet_id])
         redis_client.lpush('tweets', tweet_id)
 
         # Add tweet ID to the user's list of tweets to facilitate access to users' tweets
         redis_client.rpush(f"user:{username}:tweets", tweet_id)
 
-        # Add the tweet's topic to the set of unique topics
-        redis_client.sadd('topics', topic)
+        # Publish message to RabbitMQ
+        channel.basic_publish(exchange='', routing_key='tweet_queue', body=tweet_id)
 
         response = jsonify({'message': 'Tweet posted'})
-        response.headers.add('Access-Control-Allow-Origin',
-                             'http://localhost:5500')
+        response.headers.add('Access-Control-Allow-Origin', 'http://localhost:5500')
+        response.headers.add('Access-Control-Allow-Origin', 'http://localhost:5501')
         response.headers.add('Access-Control-Allow-Credentials', 'true')
         return response, 201
     else:
