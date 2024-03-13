@@ -6,6 +6,17 @@
 
 [![Python application](https://github.com/DZburst/4A_ILC_Cloud_Project/actions/workflows/build_app.yml/badge.svg)](https://github.com/DZburst/4A_ILC_Cloud_Project/actions/workflows/build_app.yml)
 
+## Back-End Technologies :
+[![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
+[![Flask](https://img.shields.io/badge/Flask-000000?style=for-the-badge&logo=flask&logoColor=white)](https://flask.palletsprojects.com/)
+[![Redis](https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=redis&logoColor=white)](https://redis.io/)
+[![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)  
+
+## Front-End Technologies :
+[![HTML](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/HTML5)
+[![CSS](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/CSS)
+[![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
+
 Our GitHubs : 
 
 <a href="url">[<img src="https://avatars.githubusercontent.com/u/115188188?v=4" align="left" height="70" width="70" style="border-radius: 20%;"><br>HADJI Rayan](https://github.com/DZburst)</a>
