@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const username = usernameInput.value;
         const password = passwordInput.value;
 
-        fetch('https://zany-fishstick-jjjjg7964rpcp557-5000.app.github.dev/login', {
+        fetch('http://localhost:5000/login', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
