@@ -28,7 +28,7 @@ Our GitHubs :
   - Progressive removal of the values linked to the dictionnaries, to replace them with the *redis_client*
   - Keeping the dictionnary while still developping the main functionnalities in case of problem
 3. Front-End done progressively with the usual HTML/CSS/JS
-4. Tried to solve the [CORS](https://fr.wikipedia.org/wiki/Cross-origin_resource_sharing) errors, without any success ...
+4. Part of the project works fine (tweeting, retweeting, displaying tweets), but we've encountered CORS (Cross-Origin Resource Sharing) errors in other aspects, which we have been unable to solve.
 5. Started the configuration of the [Docker](https://www.docker.com/) contener, requirements, CIs etc...
 6. Added the queue with [RabbitMQ](https://www.rabbitmq.com/)
 
