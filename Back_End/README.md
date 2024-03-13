@@ -84,9 +84,9 @@
 
   We tried several options, by modifying several parts of the code : 
   * First we used different configurations for the fetch, in *tweets4topic.js* for instance, by trying to turn on or off the *cors mode* ; we also specified explicitly the origin, without any success, and also tried to modify the headers ; we would eventually come back to the initial error.
-  * 
+
   Eventually, we focused on the remaining part of the Back End, with RabbitMQ for instance, which seemed more constructive than solving this issue.
 
 ### Codespace and Docker Issues :
 
-  Since the codespace doesn't allow us to work directly with localhost (or 127.0.0.1), we had to modify several parts of the code, notably in the JavaScript files concerning URLs and fetching. Eventually, I tried to use VSCode, but since we don't have admin rights on the school's PCs, I couldn't download Docker; thus, codespace was the best option. Note that the problems occurred only for the binome using codespace; however, the other binome that used their personal PC was able to execute their side of the project, so the tweeting, retweeting, and display of tweets works fine.
+  * Since the codespace doesn't allow us to work directly with localhost (or 127.0.0.1), we had to modify several parts of the code, notably in the JavaScript files concerning URLs and fetching. Eventually, I tried to use VSCode, but since we don't have admin rights on the school's PCs, I couldn't download Docker; thus, codespace was the best option. Note that the problems occurred only for the binome using codespace; however, the other binome that used their personal PC was able to execute their side of the project, so the tweeting, retweeting, and display of tweets works fine.
